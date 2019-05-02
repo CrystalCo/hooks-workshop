@@ -28,7 +28,7 @@ export default function LoginForm() {
     login(emailNode.value, passwordNode.value).catch(() => {
       setIsLoading(false)
       setError("Nope")
-    })
+    });
   }
 
   return (
