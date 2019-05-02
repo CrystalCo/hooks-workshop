@@ -19,63 +19,63 @@ import ProgressCircle from 'app/ProgressCircle'
 // For this Avatar to work, we need to load the user and all of their posts
 // so we can calculate the rings on their avatar, right now, it's just empty.
 
-export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
-  const user = null
-  const posts = null
+// export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
+//   const user = null
+//   const posts = null
 
-  if (!user) {
-    return (
-      <div
-        className={'Avatar empty ' + className}
-        style={{ width: size, height: size }}
-        {...rest}
-      />
-    )
-  }
+//   if (!user) {
+//     return (
+//       <div
+//         className={'Avatar empty ' + className}
+//         style={{ width: size, height: size }}
+//         {...rest}
+//       />
+//     )
+//   }
 
-  const { photoURL, displayName, goal } = user
-  const stroke = size / 10
+//   const { photoURL, displayName, goal } = user
+//   const stroke = size / 10
 
-  const circles = (() => {
-    if (!posts) return null
-    const minutes = posts && calculateTotalMinutes(posts)
-    const expectedMinutes = posts && calculateExpectedMinutes(user)
-    const progress = (minutes / goal) * 100
-    const expectedProgress = (expectedMinutes / goal) * 100
+//   const circles = (() => {
+//     if (!posts) return null
+//     const minutes = posts && calculateTotalMinutes(posts)
+//     const expectedMinutes = posts && calculateExpectedMinutes(user)
+//     const progress = (minutes / goal) * 100
+//     const expectedProgress = (expectedMinutes / goal) * 100
 
-    return (
-      <ProgressCircle
-        radius={size / 2}
-        stroke={stroke}
-        progress={progress}
-        expectedProgress={expectedProgress}
-        bg={bg}
-      />
-    )
-  })()
+//     return (
+//       <ProgressCircle
+//         radius={size / 2}
+//         stroke={stroke}
+//         progress={progress}
+//         expectedProgress={expectedProgress}
+//         bg={bg}
+//       />
+//     )
+//   })()
 
-  return (
-    <div
-      className={'Avatar ' + className}
-      style={{ width: size, height: size }}
-      {...rest}
-    >
-      <div
-        role="img"
-        aria-label={`Avatar for ${displayName}`}
-        className="Avatar_image"
-        style={{
-          backgroundImage: `url(${photoURL})`,
-          width: size - stroke * 2 + 1,
-          height: size - stroke * 2 + 1,
-          top: stroke,
-          left: stroke
-        }}
-      />
-      {circles}
-    </div>
-  )
-}
+//   return (
+//     <div
+//       className={'Avatar ' + className}
+//       style={{ width: size, height: size }}
+//       {...rest}
+//     >
+//       <div
+//         role="img"
+//         aria-label={`Avatar for ${displayName}`}
+//         className="Avatar_image"
+//         style={{
+//           backgroundImage: `url(${photoURL})`,
+//           width: size - stroke * 2 + 1,
+//           height: size - stroke * 2 + 1,
+//           top: stroke,
+//           left: stroke
+//         }}
+//       />
+//       {circles}
+//     </div>
+//   )
+// }
 
 /******************************************************************************/
 // Everything in React is the same: if the user clicks, setState, if a network
@@ -315,21 +315,38 @@ export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
 // callback with the exact state we want, when that's the case, it's a pretty
 // satisfying one-liner in React to subscribe to data.
 
-// export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
-//   const [user, setUser] = useState(null)
-//   const [posts, setPosts] = useState(null)
+export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
+  const [user, setUser] = useState(null)
+  const [posts, setPosts] = useState(null)
 
-//   useEffect(() => {
-//     let current = true
-//     fetchUser(uid).then(user => {
-//       if (current) {
-//         setUser(user)
-//       }
-//     })
-//     return () => current = false
-//   }, [uid])
+  useEffect(() => {
+    // is side effect currently active:
+    let current = true
+    fetchUser(uid).then(user => {
+      if (current) {
+        setUser(user)
+      }
+    })
+    // this is where you can "cleanup". if we initiated any asynchronous effect, to umount or unsubscribe or if userID changes
+    // cleanup runs ___ and when unmounts
+    return () => current = false
+  }, [uid])
 
-//   useEffect(() => subscribeToPosts(uid, setPosts), [uid])
+  const[posts, sertPosts] = useState(null)
+
+  // 1. set up a subscrioption for a users post
+  //2. cancel subscription when component unmounts
+  // 3. when uid changes, we do 2 things: cancel previous subscription && set up a new subscription
+  //it'll call callback when user makes new post
+  // useEffect(() => {
+  //   // returns unsubscribe fn
+  //   const unsubscribe = subscribeToPosts(uid, posts=> {
+  //     setPosts(posts)
+  //   })
+  //   return unsubscribe
+  // }, [uid])
+// same as
+  useEffect(() => subscribeToPosts(uid, setPosts), [uid])
 
 //   if (!user) {
 //     return (
@@ -393,81 +410,81 @@ export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
 //
 // Watch how easily we can abstract these two behaviors:
 
-// function useUser(uid) {
-//   const [user, setUser] = useState(null)
-//   useEffect(() => {
-//     let current = true
-//     fetchUser(uid).then(user => {
-//       if (current) setUser(user)
-//     })
-//     return () => current = false
-//   }, [uid])
-//   return user
-// }
+function useUser(uid) {
+  const [user, setUser] = useState(null)
+  useEffect(() => {
+    let current = true
+    fetchUser(uid).then(user => {
+      if (current) setUser(user)
+    })
+    return () => current = false
+  }, [uid])
+  return user
+}
 
-// function usePosts(uid) {
-//   const [posts, setPosts] = useState(null)
-//   useEffect(() => subscribeToPosts(uid, setPosts), [uid])
-//   return posts
-// }
+function usePosts(uid) {
+  const [posts, setPosts] = useState(null)
+  useEffect(() => subscribeToPosts(uid, setPosts), [uid])
+  return posts
+}
 
-// export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
-//   const user = useUser(uid)
-//   const posts = usePosts(uid)
+export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
+  const user = useUser(uid)
+  const posts = usePosts(uid)
 
-//   if (!user) {
-//     return (
-//       <div
-//         className={"Avatar empty " + className}
-//         style={{ width: size, height: size }}
-//         {...rest}
-//       />
-//     )
-//   }
+  if (!user) {
+    return (
+      <div
+        className={"Avatar empty " + className}
+        style={{ width: size, height: size }}
+        {...rest}
+      />
+    )
+  }
 
-//   const { photoURL, displayName, goal } = user
-//   const stroke = size / 10
+  const { photoURL, displayName, goal } = user
+  const stroke = size / 10
 
-//   const circles = (() => {
-//     if (!posts) return null
-//     const minutes = posts && calculateTotalMinutes(posts)
-//     const expectedMinutes = posts && calculateExpectedMinutes(user)
-//     const progress = (minutes / goal) * 100
-//     const expectedProgress = (expectedMinutes / goal) * 100
+  const circles = (() => {
+    if (!posts) return null
+    const minutes = posts && calculateTotalMinutes(posts)
+    const expectedMinutes = posts && calculateExpectedMinutes(user)
+    const progress = (minutes / goal) * 100
+    const expectedProgress = (expectedMinutes / goal) * 100
 
-//     return (
-//       <ProgressCircle
-//         radius={size / 2}
-//         stroke={stroke}
-//         progress={progress}
-//         expectedProgress={expectedProgress}
-//         bg={bg}
-//       />
-//     )
-//   })()
+    return (
+      <ProgressCircle
+        radius={size / 2}
+        stroke={stroke}
+        progress={progress}
+        expectedProgress={expectedProgress}
+        bg={bg}
+      />
+    )
+  })()
 
-//   return (
-//     <div
-//       className={"Avatar " + className}
-//       style={{ width: size, height: size }}
-//       {...rest}
-//     >
-//       <div
-//         role="img"
-//         aria-label={`Avatar for ${displayName}`}
-//         className="Avatar_image"
-//         style={{
-//           backgroundImage: `url(${photoURL})`,
-//           width: size - stroke * 2 + 1,
-//           height: size - stroke * 2 + 1,
-//           top: stroke,
-//           left: stroke
-//         }}
-//       />
-//       {circles}
-//     </div>
-//   )
-// }
+  return (
+    <div
+      className={"Avatar " + className}
+      style={{ width: size, height: size }}
+      {...rest}
+    >
+      <div
+        role="img"
+        aria-label={`Avatar for ${displayName}`}
+        className="Avatar_image"
+        style={{
+          backgroundImage: `url(${photoURL})`,
+          width: size - stroke * 2 + 1,
+          height: size - stroke * 2 + 1,
+          top: stroke,
+          left: stroke
+        }}
+      />
+      {circles}
+    </div>
+  )
+}
 
 /******************************************************************************/
 // useEffect is able to encapsulate BOTH setup and teardown. Also, it is able to
@@ -491,3 +508,187 @@ export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
 //     return this.props.children(this.state.posts)
 //   }
 // }
+
+
+
+/////////////
+
+function useUser(uid) {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    // is side effect currently active:
+    let current = true
+    fetchUser(uid).then(user => {
+      if (current) {
+        setUser(user)
+      }
+    })
+    // this is where you can "cleanup". if we initiated any asynchronous effect, to umount or unsubscribe or if userID changes
+    // cleanup runs ___ and when unmounts
+    return () => current = false
+  }, [uid])
+  return user
+}
+
+function usePosts(uid) {
+  const [posts, setPosts] = useState(null)
+
+  useEffect(() => subscribeToPosts(uid, setPosts), [uid])
+  return posts
+}
+
+
+
+export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
+  const user = useUser(uid)
+  const posts = usePosts(uid)
+
+  if (!user) {
+    return (
+      <div
+        className={"Avatar empty " + className}
+        style={{ width: size, height: size }}
+        {...rest}
+      />
+    )
+  }
+
+  const { photoURL, displayName, goal } = user
+  const stroke = size / 10
+
+  const circles = (() => {
+    if (!posts) return null
+    const minutes = posts && calculateTotalMinutes(posts)
+    const expectedMinutes = posts && calculateExpectedMinutes(user)
+    const progress = (minutes / goal) * 100
+    const expectedProgress = (expectedMinutes / goal) * 100
+
+    return (
+      <ProgressCircle
+        radius={size / 2}
+        stroke={stroke}
+        progress={progress}
+        expectedProgress={expectedProgress}
+        bg={bg}
+      />
+    )
+  })()
+
+  return (
+    <div
+      className={"Avatar " + className}
+      style={{ width: size, height: size }}
+      {...rest}
+    >
+      <div
+        role="img"
+        aria-label={`Avatar for ${displayName}`}
+        className="Avatar_image"
+        style={{
+          backgroundImage: `url(${photoURL})`,
+          width: size - stroke * 2 + 1,
+          height: size - stroke * 2 + 1,
+          top: stroke,
+          left: stroke
+        }}
+      />
+      {circles}
+    </div>
+  )
+}
+
+
+////////////////////
+
+
+
+function useUser(uid) {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    // is side effect currently active:
+    let current = true
+    fetchUser(uid).then(user => {
+      if (current) {
+        setUser(user)
+      }
+    })
+    // this is where you can "cleanup". if we initiated any asynchronous effect, to umount or unsubscribe or if userID changes
+    // cleanup runs ___ and when unmounts
+    return () => current = false
+  }, [uid])
+  return user
+}
+
+function usePosts(uid) {
+  const [posts, setPosts] = useState(null)
+
+  useEffect(() => subscribeToPosts(uid, setPosts), [uid])
+  return posts
+}
+
+function userAndPosts(uid) {
+  return { user: useUser(uid), posts: usePosts(uid)}
+}
+// or to save to local storage data
+function userAndPosts(uid) {
+  return { user: useLocalStorage('user', useUser(uid)), posts: usePosts(uid)}
+}
+
+export default function Avatar({ uid, size = 50, bg, className, ...rest }) {
+  const { user, posts } = userAndPosts(uid)
+
+  if (!user) {
+    return (
+      <div
+        className={"Avatar empty " + className}
+        style={{ width: size, height: size }}
+        {...rest}
+      />
+    )
+  }
+
+  const { photoURL, displayName, goal } = user
+  const stroke = size / 10
+
+  const circles = (() => {
+    if (!posts) return null
+    const minutes = posts && calculateTotalMinutes(posts)
+    const expectedMinutes = posts && calculateExpectedMinutes(user)
+    const progress = (minutes / goal) * 100
+    const expectedProgress = (expectedMinutes / goal) * 100
+
+    return (
+      <ProgressCircle
+        radius={size / 2}
+        stroke={stroke}
+        progress={progress}
+        expectedProgress={expectedProgress}
+        bg={bg}
+      />
+    )
+  })()
+
+  return (
+    <div
+      className={"Avatar " + className}
+      style={{ width: size, height: size }}
+      {...rest}
+    >
+      <div
+        role="img"
+        aria-label={`Avatar for ${displayName}`}
+        className="Avatar_image"
+        style={{
+          backgroundImage: `url(${photoURL})`,
+          width: size - stroke * 2 + 1,
+          height: size - stroke * 2 + 1,
+          top: stroke,
+          left: stroke
+        }}
+      />
+      {circles}
+    </div>
+  )
+}
