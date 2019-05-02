@@ -200,12 +200,19 @@ export default function NewPost({ takeFocus, date, onSuccess, showAvatar }) {
     setMessage(event.target.value)
   }
 
+  // const truncatedMessage = message.substr(25)
+
   // puts it straight into the Document Object Model, instead of an element like div
   useEffect(() => {
     // manually update the document's title (in the browser tab)
     // useEffect == similar to componentDidMount, componentDidUpdate, componentUnmout
     document.title = "New Post" + (message.length ? `: ${message}` : "")
-  }, [message])
+  }, [message]) // || truncatedMessage inside 2nd arg to only change when > or < 25 characters?
+  // this second argument is an array, so that when any stuff in it changes, we'll run the side effect only then to rerender. "Dependency array". 
+  //can be an array of anything, strings, ints, but NOT OBJECTS b/c will always rerender an object
+  // when there's no 2nd arg, ALWAYS runs side effects.
+  // when 2nd arg is an empty array [], only renders once since nothing inside never changes.  Same as putting a constant in there since it'll never change.
+
 
   return (
     <div className={"NewPost" + (messageTooLong ? ` ${errorClass}` : "")}>
@@ -250,3 +257,19 @@ function useTitle(title) {
     document.title = title
   }, [title])
 }
+
+```
+...
+const messageTooLong = message.length > MAX_MESSAGE_LENGTH
+
+function handleMessageChange(event) {
+  setMessage(event.target.value)
+}
+
+```
+// useTitle("New Post" + (message ? `: $message` : ""))
+
+// return (
+//  <div className={"NewPost" + (messageTooLong ? ` ${errorClass}` : "")}>
+//    {showAvatar && <Avatar uid={auth.uid} size={70} />}
+//...
