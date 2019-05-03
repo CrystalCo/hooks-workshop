@@ -4,6 +4,16 @@ import { daysInMonth } from "app/utils"
 
 const DateFieldsContext = createContext()
 
+// export function AmericanDateFields({start, end, ...rest}) {
+//   return (
+//     <DateFields {...rest}>
+//       <MonthField />
+//       <DayField />
+//       <YearField start={start} end={end} />
+//     </DateFields>
+//   )
+// }
+
 export default function DateFields({
   children,
   defaultValue,
@@ -13,8 +23,13 @@ export default function DateFields({
   onChange
 }) {
   const date = controlledValue || defaultValue
-  const context = { date, onChange }
-  return ( <DateFieldsContext.Provider value={context} children={children} />)
+  return (
+    <Fragment>
+      <DateFieldsContext.Provider value={{ date, onChange }} >
+          {children}
+        </DateFieldsContext.Provider>
+    </Fragment> 
+  )
 }
 
 export function DayField(props) {
@@ -69,8 +84,8 @@ export function MonthField(props) {
 }
 
 export function YearField(props) {
-  const { start, end } = props
   const { date, onChange } = useContext(DateFieldsContext)
+  const { start, end } = props
   const difference = end - start + 1
   const years = Array.from({ length: difference }).map(
     (_, index) => index + start
