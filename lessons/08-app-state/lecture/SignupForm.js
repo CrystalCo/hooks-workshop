@@ -71,83 +71,91 @@ export default function SignupForm() {
 
 /******************************************************************************/
 // 4. When we've got multiple pieces of state, we can use a reducer to co-locate
-//    all the changes to it, rather than using a bunch of `useState`s
+//    all the changes to it, rather than using a bunch of `useState`s.
+//  useReducer shows us an organized for of what the function is doing.
 
-// export default function SignupForm() {
-//   const [state, dispatch] = useReducer(
-//     (state, action) => {
-//       switch (action.type) {
-//         case "SIGNING_UP":
-//           return { ...state, loading: true }
-//         case "SIGNUP_ERROR":
-//           return { ...state, error: action.error, loading: false }
-//         case "UPDATE_DATE":
-//           return { ...state, startDate: action.date }
-//         default: {
-//         }
-//       }
-//     },
-//     {
-//       error: null,
-//       loading: false,
-//       startDate: new Date("March 1, 2019")
-//     }
-//   )
+export default function SignupForm() {
+  // useReducer(reducer, initialState)    TURNS INTO...
+  // useReducer((state, action), {error: null, loading: false, startDate: new Date("March 1, 2019")}})
+  //  which TURNS INTO...
+  const [state, dispatch] = useReducer(
+    (state, action) => {
+      switch (action.type) {
+        // on the right side of a case statement you can put a block
+        case "SIGNING_UP":
+          return { ...state, loading: true }
+        case "SIGNUP_ERROR":
+          return { ...state, error: action.error, loading: false }
+        case "UPDATE_DATE":
+          return { ...state, startDate: action.date }
+        default: {
+          throw new Error(`I don't know what ${action.type} means.`)
+        }
+      }
+    },
+    {
+      error: null,
+      loading: false,
+      startDate: new Date("March 1, 2019")
+    }
+  )
 
-//   const { startDate, error, loading } = state
+  const { startDate, error, loading } = state
 
-//   const handleSignup = async event => {
-//     event.preventDefault()
-//     dispatch({ type: "SIGNING_UP" })
-//     const [displayName, photoURL, email, password] = event.target.elements
-//     try {
-//       await signup({
-//         displayName: displayName.value,
-//         email: email.value,
-//         password: password.value,
-//         photoURL: photoURL.value,
-//         startDate
-//       })
-//     } catch (error) {
-//       dispatch({ type: "SIGNUP_ERROR", error })
-//     }
-//   }
+  const handleSignup = async event => {
+    event.preventDefault()
+    // dispatches(actionObject/actions that we create)
+    // dispatches new action that changes the state depending on action
+    dispatch({ type: "SIGNING_UP" })
+    const [displayName, photoURL, email, password] = event.target.elements
+    try {
+      await signup({
+        displayName: displayName.value,
+        email: email.value,
+        password: password.value,
+        photoURL: photoURL.value,
+        startDate
+      })
+    } catch (error) {
+      dispatch({ type: "SIGNUP_ERROR", error })
+    }
+  }
 
-//   return (
-//     <div>
-//       {error && (
-//         <div>
-//           <p>Oops, there was an error logging you in.</p>
-//           <p>
-//             <i>{error.message}</i>
-//           </p>
-//         </div>
-//       )}
+  return (
+    <div>
+      {error && (
+        <div>
+          <p>Oops, there was an error logging you in.</p>
+          <p>
+            <i>{error.message}</i>
+          </p>
+        </div>
+      )}
 
-//       <form onSubmit={handleSignup}>
-//         <TextInput id="displayName" label="Display Name" />
-//         <TextInput id="photoURL" label="Avatar URL" />
-//         <TextInput id="email" label="Email" />
-//         <TextInput id="password" label="Password" type="password" />
-//         <p>
-//           <span aria-hidden="true">Start:</span>{" "}
-//           <DateFields
-//             value={startDate}
-//             onChange={date => dispatch({ type: "UPDATE_DATE", date })}
-//           >
-//             <MonthField aria-label="Start Month" /> /{" "}
-//             <DayField aria-label="Start Day" /> /{" "}
-//             <YearField start={2018} end={2019} aria-label="Start year" />
-//           </DateFields>
-//         </p>
-//         <TabsButton>
-//           <FaDumbbell />
-//           <span>{loading ? "Loading..." : "Sign Up"}</span>
-//         </TabsButton>
-//       </form>
-//     </div>
-//   )
-// }
+      <form onSubmit={handleSignup}>
+        <TextInput id="displayName" label="Display Name" />
+        <TextInput id="photoURL" label="Avatar URL" />
+        <TextInput id="email" label="Email" />
+        <TextInput id="password" label="Password" type="password" />
+        <p>
+          <span aria-hidden="true">Start:</span>{" "}
+          <DateFields
+            value={startDate}
+            onChange={date => dispatch({ type: "UPDATE_DATE", date })}
+          >
+            <MonthField aria-label="Start Month" /> /{" "}
+            <DayField aria-label="Start Day" /> /{" "}
+            <YearField start={2018} end={2019} aria-label="Start year" />
+          </DateFields>
+        </p>
+        <TabsButton>
+          <FaDumbbell />
+          <span>{loading ? "Loading..." : "Sign Up"}</span>
+        </TabsButton>
+      </form>
+    </div>
+  )
+}
 
 /******************************************************************************/
 // 5. Pretty nice, having all those state changes happening in one place instead
