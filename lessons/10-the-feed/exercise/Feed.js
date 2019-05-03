@@ -6,13 +6,19 @@ import { loadFeedPosts, subscribeToNewFeedPosts } from "app/utils"
 export default Feed
 
 function Feed() {
+  const [newPosts, setNewPosts] = useState([])
   const [posts, setPosts] = useState(null)
-  const [limit] = useState(3)    // limit number of results
+  const [limit, setLimit] = useState(3)    // limit number of results
   const [time] = useState(Date.now())  // query for posts created before the unix timestamp
   
   console.log("show time", time)
 
+  const handleViewMore = () => {
+    setLimit(limit + 3)
+  }
+
   useEffect(() => {
+    // loadFeedPost = single request
     let isCurrent = true
     loadFeedPosts(time, limit).then(posts => {
       if(isCurrent) setPosts(posts)
@@ -20,18 +26,28 @@ function Feed() {
     return () => isCurrent = false
   }, [time, limit ])
 
+  useEffect(() => 
+    // don't need the isCurrent b/c subscribe listens for request of new posts when you push that button 
+    // don't need return statement b/c its a one liner, so auto returns 
+    subscribeToNewFeedPosts(time, newPosts => {
+      setNewPosts(newPosts)
+    })
+  , [time])
+
   return (
     <div className="Feed">
-      <div className="Feed_button_wrapper">
-        <button className="Feed_new_posts_button icon_button">
-          View 3 New Posts
-        </button>
-      </div>
+      {newPosts.length > 0 && (
+        <div className="Feed_button_wrapper">
+          <button className="Feed_new_posts_button icon_button">
+            View 3 New Posts
+          </button>
+        </div>
+    )}
 
       {posts && posts.map(post => <FeedPost post={post} key={post.id} /> )}
 
       <div className="Feed_button_wrapper">
-        <button className="Feed_new_posts_button icon_button">View More</button>
+        <button className="Feed_new_posts_button icon_button" onClick={handleViewMore} >View More</button>
       </div>
     </div>
   )

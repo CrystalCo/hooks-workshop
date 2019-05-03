@@ -8,7 +8,7 @@ There are a few features on the Feed that you're going to implement. You can unc
 
 2. When the user clicks the `View More` button, load more posts (ofc!). What controls how many posts are fetched? Change that and you're ready to go.
 
-3. Subscribe to new posts with `subscribeToNewFeedPosts(createdAfter, posts => {})`. This will callback whenever new posts come in that were created *after* `createdAfter`.
+3. Subscribe to new posts with `subscribeToNewFeedPosts(createdAfter, posts => {})`. This will callback whenever new posts come in that were created *after* `createdAfter`.  CC: A subscription is a stream, not a promise. Want state to keep track of new ones and stick counter in button?
 
 4. Don't show the "View [x] New Posts" button unless there are new posts to show.
 
