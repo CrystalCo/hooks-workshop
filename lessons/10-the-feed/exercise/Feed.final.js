@@ -30,6 +30,7 @@ export default function Feed() {
         }
       }
     },
+    // initialize reducer with it.  everytime our state changes, write current state to memory side effect w/ useEffect(()=> feedState = state)
     feedState || {
       createdBefore: Date.now(),
       viewedAll: false,
