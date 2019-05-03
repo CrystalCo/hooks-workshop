@@ -4,7 +4,7 @@ There are a few features on the Feed that you're going to implement. You can unc
 
 ## Requirements
 
-1. Load the posts with `loadFeedPosts(createdBefore, limit)`. It returns a promise so you can either `await` it or use `then`. `createdBefore` will query for only posts created before the unix timestamp you provide (the thing `Date.now()` returns). `limit` will limit the number of results.  You can set the limit to whatever you want, but 3 seems like a good limit for this exercise. When you have your posts, render them each with `<FeedPost/>`.
+1. Load the posts with `loadFeedPosts(createdBefore, limit)` API. It returns a promise so you can either `await` it or use `then`. `createdBefore` will query for only posts created before the unix timestamp you provide (the thing `Date.now()` returns). `limit` will limit the number of results.  You can set the limit to whatever you want, but 3 seems like a good limit for this exercise. When you have your posts, render them each with `<FeedPost/>`.
 
 2. When the user clicks the `View More` button, load more posts (ofc!). What controls how many posts are fetched? Change that and you're ready to go.
 
